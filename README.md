@@ -26,9 +26,11 @@ EventBridge Scheduler ──► Lambda (Python 3.12)
   concerns and pitch.
 - **Grounded scoring.** The system prompt allows only facts from `profile/candidate_profile.md`
   and treats course projects as projects, not work experience.
-- **Bounded cost.** At most `max_scores_per_run` model calls per run. Postings over the cap
-  stay unseen and get scored on the next run. A failed score is retried next run too. An
-  AWS Budget alert fires at 80% of the monthly limit.
+- **Bounded cost.** At most `max_scores_per_run` model calls per run, and only one run at a
+  time. Postings over the cap stay unseen and get scored on the next run; a failed score is
+  retried next run too. AWS Budgets emails at 80% forecast and 100% actual spend, and at 100%
+  a budget action attaches a deny policy so the Lambda can no longer call Bedrock. Cost
+  Anomaly Detection emails a daily summary of unusual spend.
 - **Testable seams.** The scorer, memory, notifier and fetcher are injected, so the whole
   loop runs in tests with fakes and makes no network or AWS calls.
 
