@@ -13,7 +13,7 @@ EventBridge Scheduler ──► Lambda (Python 3.12)
                             ├─ 3. Recall   DynamoDB: skip postings already scored (90-day TTL)
                             ├─ 4. Score    Claude on Bedrock → Pydantic FitAssessment
                             ├─ 5. Remember write score + verdict to DynamoDB
-                            └─ 6. Alert    SNS email digest of leads ≥ 75 with no eligibility flags
+                            └─ 6. Alert    SNS email digest of leads ≥ 70 with no eligibility flags
 ```
 
 ## Design choices
@@ -73,9 +73,9 @@ aws lambda invoke --function-name jobscout /dev/stdout
 | Candidate profile | `profile/candidate_profile.md` | — |
 | Model | `JOBSCOUT_MODEL` / `var.model` | `global.anthropic.claude-sonnet-4-6` (use `anthropic.claude-opus-5-5` once your account has access) |
 | Effort | `JOBSCOUT_EFFORT` | `low` (set empty for models without effort, e.g. Haiku 4.5) |
-| Alert threshold | `JOBSCOUT_MIN_SCORE` | 75 |
-| Model calls per run | `JOBSCOUT_MAX_SCORES` | 25 |
-| Schedule | `var.schedule` | 8 AM and 4 PM ET, weekdays |
+| Alert threshold | `JOBSCOUT_MIN_SCORE` | 70 |
+| Model calls per run | `JOBSCOUT_MAX_SCORES` | 15 |
+| Schedule | `var.schedule` | 8 AM ET, weekdays |
 
 ## Model IDs and Bedrock APIs
 

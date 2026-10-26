@@ -15,8 +15,8 @@ class Settings:
     model: str = "global.anthropic.claude-sonnet-4-6"
     effort: str = "low"
     aws_region: str = "us-east-1"
-    min_score: int = 75
-    max_scores_per_run: int = 25
+    min_score: int = 70
+    max_scores_per_run: int = 15
     memory_path: Path = ROOT / ".jobscout" / "seen.json"
     dynamo_table: str | None = None
     sns_topic_arn: str | None = None

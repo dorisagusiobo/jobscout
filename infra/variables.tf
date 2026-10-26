@@ -11,7 +11,7 @@ variable "alert_email" {
 variable "schedule" {
   type        = string
   description = "EventBridge Scheduler expression, in America/New_York time."
-  default     = "cron(0 8,16 ? * MON-FRI *)" # 8 AM and 4 PM on weekdays
+  default     = "cron(0 8 ? * MON-FRI *)" # 8 AM on weekdays
 }
 
 variable "model" {
@@ -26,13 +26,13 @@ variable "effort" {
 
 variable "min_score" {
   type    = number
-  default = 75
+  default = 70
 }
 
 variable "max_scores_per_run" {
   type        = number
   description = "Cap on Claude calls per run; extra postings wait for the next run."
-  default     = 25
+  default     = 15
 }
 
 variable "monthly_budget_usd" {

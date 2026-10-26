@@ -23,7 +23,7 @@ def main(argv: list[str] | None = None) -> None:
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--live", action="store_true", help="score with Claude on Bedrock")
     parser.add_argument("--max", type=int, help="max postings to score this run")
-    parser.add_argument("--min-score", type=int, help="alert threshold (default 75)")
+    parser.add_argument("--min-score", type=int, help="alert threshold (default 70)")
     parser.add_argument("-v", "--verbose", action="store_true")
     args = parser.parse_args(argv)
 
