@@ -1,0 +1,93 @@
+# JobScout
+
+An AI job-lead agent that runs on a schedule on AWS. It scans public job boards, filters
+out roles I can't take, scores the rest against my profile with Claude on Amazon Bedrock,
+and emails me only the strong matches. Each digest includes a pitch line I can reuse in a
+cover letter.
+
+```
+EventBridge Scheduler ──► Lambda (Python 3.12)
+                            │
+                            ├─ 1. Scan     Greenhouse / Lever / Ashby public APIs (43 boards)
+                            ├─ 2. Filter   title, US/remote location, clearance/citizenship rules
+                            ├─ 3. Recall   DynamoDB: skip postings already scored (90-day TTL)
+                            ├─ 4. Score    Claude on Bedrock → Pydantic FitAssessment
+                            ├─ 5. Remember write score + verdict to DynamoDB
+                            └─ 6. Alert    SNS email digest of leads ≥ 75 with no eligibility flags
+```
+
+## Design choices
+
+- **Rules before the model.** Cheap regex filters drop most postings before any model call.
+  The eligibility filter drops roles that need a security clearance or US citizenship. It
+  keeps ITAR "U.S. person" roles, because asylees qualify as U.S. persons.
+- **Structured output, not string parsing.** `client.messages.parse(output_format=FitAssessment)`
+  returns a validated Pydantic object with score, verdict, strengths, gaps, eligibility
+  concerns and pitch.
+- **Grounded scoring.** The system prompt allows only facts from `profile/candidate_profile.md`
+  and treats course projects as projects, not work experience.
+- **Bounded cost.** At most `max_scores_per_run` model calls per run. Postings over the cap
+  stay unseen and get scored on the next run. A failed score is retried next run too. An
+  AWS Budget alert fires at 80% of the monthly limit.
+- **Testable seams.** The scorer, memory, notifier and fetcher are injected, so the whole
+  loop runs in tests with fakes and makes no network or AWS calls.
+
+## Run locally
+
+```bash
+uv sync
+uv run pytest                      # all tests, offline
+uv run jobscout                    # live job boards, offline keyword scoring, nothing saved
+uv run jobscout --live --max 5     # score 5 postings with Claude on Bedrock (needs AWS creds)
+```
+
+Live mode remembers seen postings in `.jobscout/seen.json`.
+
+## Deploy to AWS
+
+Prerequisites:
+1. AWS credentials configured (`aws sts get-caller-identity` works).
+2. In the Bedrock console (us-east-1), the Anthropic use-case form is submitted and Claude
+   model access is granted. Until then calls fail with "not available for this account" or
+   "use case details have not been submitted".
+
+```bash
+./build.sh
+cd infra
+cp terraform.tfvars.example terraform.tfvars   # set alert_email
+terraform init
+terraform apply
+```
+
+Then click the SNS confirmation link AWS emails you. To trigger a run by hand:
+
+```bash
+aws lambda invoke --function-name jobscout /dev/stdout
+```
+
+## Configuration
+
+| Setting | Where | Default |
+|---|---|---|
+| Boards and title keywords | `config/companies.json` | 43 AI-heavy companies |
+| Candidate profile | `profile/candidate_profile.md` | — |
+| Model | `JOBSCOUT_MODEL` / `var.model` | `anthropic.claude-opus-5-5` (`anthropic.claude-haiku-5-5` is cheaper) |
+| Effort | `JOBSCOUT_EFFORT` | `low` (set empty for models without effort, e.g. Haiku 4.5) |
+| Alert threshold | `JOBSCOUT_MIN_SCORE` | 75 |
+| Model calls per run | `JOBSCOUT_MAX_SCORES` | 25 |
+| Schedule | `var.schedule` | 8 AM and 4 PM ET, weekdays |
+
+## Model IDs and Bedrock APIs
+
+The scorer picks the Bedrock API from the model ID:
+
+- `anthropic.claude-opus-5-5` (no region prefix) uses the Messages API endpoint
+  (`bedrock-mantle`) through `AnthropicBedrockMantle`.
+- `global.anthropic.claude-sonnet-4-6` or `us.anthropic.claude-haiku-4-5-20251001-v1:0`
+  (inference profiles) use InvokeModel through `AnthropicBedrock`.
+
+## Credits
+
+The planner → scanner → scorer → messenger structure follows the multi-agent "Price is Right"
+project from Week 8 of Ed Donner's *LLM Engineering* course. JobScout applies that pattern to
+a different problem with its own sources, filters, scoring and AWS deployment.

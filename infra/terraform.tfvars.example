@@ -1,0 +1,3 @@
+alert_email = "you@example.com"
+# model     = "anthropic.claude-haiku-5-5"  # cheaper option
+# schedule  = "cron(0 8 ? * MON-FRI *)"

@@ -1,0 +1,248 @@
+{
+  "title_include": [
+    "ai engineer",
+    "ml engineer",
+    "machine learning engineer",
+    "llm",
+    "genai",
+    "generative ai",
+    "applied ai",
+    "ai/ml",
+    "ai solutions",
+    "forward deployed",
+    "ai developer",
+    "agentic"
+  ],
+  "title_exclude": [
+    "staff",
+    "principal",
+    "director",
+    "manager",
+    "head of",
+    "intern",
+    "vp",
+    "lead,",
+    "researcher",
+    "phd",
+    "recruit",
+    "sales",
+    "account executive"
+  ],
+  "boards": [
+    {
+      "company": "Anthropic",
+      "source": "greenhouse",
+      "token": "anthropic"
+    },
+    {
+      "company": "Databricks",
+      "source": "greenhouse",
+      "token": "databricks"
+    },
+    {
+      "company": "Scale AI",
+      "source": "greenhouse",
+      "token": "scaleai"
+    },
+    {
+      "company": "Cloudflare",
+      "source": "greenhouse",
+      "token": "cloudflare"
+    },
+    {
+      "company": "GitLab",
+      "source": "greenhouse",
+      "token": "gitlab"
+    },
+    {
+      "company": "Figma",
+      "source": "greenhouse",
+      "token": "figma"
+    },
+    {
+      "company": "Stripe",
+      "source": "greenhouse",
+      "token": "stripe"
+    },
+    {
+      "company": "Datadog",
+      "source": "greenhouse",
+      "token": "datadog"
+    },
+    {
+      "company": "Coinbase",
+      "source": "greenhouse",
+      "token": "coinbase"
+    },
+    {
+      "company": "Elastic",
+      "source": "greenhouse",
+      "token": "elastic"
+    },
+    {
+      "company": "MongoDB",
+      "source": "greenhouse",
+      "token": "mongodb"
+    },
+    {
+      "company": "Samsara",
+      "source": "greenhouse",
+      "token": "samsara"
+    },
+    {
+      "company": "Brex",
+      "source": "greenhouse",
+      "token": "brex"
+    },
+    {
+      "company": "Gusto",
+      "source": "greenhouse",
+      "token": "gusto"
+    },
+    {
+      "company": "Affirm",
+      "source": "greenhouse",
+      "token": "affirm"
+    },
+    {
+      "company": "Okta",
+      "source": "greenhouse",
+      "token": "okta"
+    },
+    {
+      "company": "Reddit",
+      "source": "greenhouse",
+      "token": "reddit"
+    },
+    {
+      "company": "Duolingo",
+      "source": "greenhouse",
+      "token": "duolingo"
+    },
+    {
+      "company": "Together AI",
+      "source": "greenhouse",
+      "token": "togetherai"
+    },
+    {
+      "company": "Glean",
+      "source": "greenhouse",
+      "token": "gleanwork"
+    },
+    {
+      "company": "Snorkel AI",
+      "source": "greenhouse",
+      "token": "snorkelai"
+    },
+    {
+      "company": "Abnormal Security",
+      "source": "greenhouse",
+      "token": "abnormalsecurity"
+    },
+    {
+      "company": "Vercel",
+      "source": "greenhouse",
+      "token": "vercel"
+    },
+    {
+      "company": "Airbnb",
+      "source": "greenhouse",
+      "token": "airbnb"
+    },
+    {
+      "company": "Robinhood",
+      "source": "greenhouse",
+      "token": "robinhood"
+    },
+    {
+      "company": "Spotify",
+      "source": "lever",
+      "token": "spotify"
+    },
+    {
+      "company": "OpenAI",
+      "source": "ashby",
+      "token": "openai"
+    },
+    {
+      "company": "Notion",
+      "source": "ashby",
+      "token": "notion"
+    },
+    {
+      "company": "Ramp",
+      "source": "ashby",
+      "token": "ramp"
+    },
+    {
+      "company": "Linear",
+      "source": "ashby",
+      "token": "linear"
+    },
+    {
+      "company": "LangChain",
+      "source": "ashby",
+      "token": "langchain"
+    },
+    {
+      "company": "Harvey",
+      "source": "ashby",
+      "token": "harvey"
+    },
+    {
+      "company": "Replit",
+      "source": "ashby",
+      "token": "replit"
+    },
+    {
+      "company": "ElevenLabs",
+      "source": "ashby",
+      "token": "elevenlabs"
+    },
+    {
+      "company": "Cursor",
+      "source": "ashby",
+      "token": "cursor"
+    },
+    {
+      "company": "Sierra",
+      "source": "ashby",
+      "token": "sierra"
+    },
+    {
+      "company": "Writer",
+      "source": "ashby",
+      "token": "writer"
+    },
+    {
+      "company": "Perplexity",
+      "source": "ashby",
+      "token": "perplexity"
+    },
+    {
+      "company": "Cohere",
+      "source": "ashby",
+      "token": "cohere"
+    },
+    {
+      "company": "Modal",
+      "source": "ashby",
+      "token": "modal"
+    },
+    {
+      "company": "Baseten",
+      "source": "ashby",
+      "token": "baseten"
+    },
+    {
+      "company": "Cognition",
+      "source": "ashby",
+      "token": "cognition"
+    },
+    {
+      "company": "Decagon",
+      "source": "ashby",
+      "token": "decagon"
+    }
+  ]
+}

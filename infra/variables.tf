@@ -1,0 +1,41 @@
+variable "region" {
+  type    = string
+  default = "us-east-1"
+}
+
+variable "alert_email" {
+  type        = string
+  description = "Where lead digests and budget warnings go."
+}
+
+variable "schedule" {
+  type        = string
+  description = "EventBridge Scheduler expression, in America/New_York time."
+  default     = "cron(0 8,16 ? * MON-FRI *)" # 8 AM and 4 PM on weekdays
+}
+
+variable "model" {
+  type    = string
+  default = "anthropic.claude-opus-5-5"
+}
+
+variable "effort" {
+  type    = string
+  default = "low"
+}
+
+variable "min_score" {
+  type    = number
+  default = 75
+}
+
+variable "max_scores_per_run" {
+  type        = number
+  description = "Cap on Claude calls per run; extra postings wait for the next run."
+  default     = 25
+}
+
+variable "monthly_budget_usd" {
+  type    = number
+  default = 10
+}
