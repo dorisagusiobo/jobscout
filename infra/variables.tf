@@ -39,3 +39,9 @@ variable "monthly_budget_usd" {
   type    = number
   default = 10
 }
+
+variable "anomaly_alert_usd" {
+  type        = number
+  description = "Email when an unusual spike costs at least this much."
+  default     = 1
+}

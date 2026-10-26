@@ -111,6 +111,9 @@ resource "aws_lambda_function" "scout" {
   timeout          = 900
   memory_size      = 512
 
+  # One run at a time, so a misfire can't fan out into parallel Claude calls.
+  reserved_concurrent_executions = 1
+
   environment {
     variables = {
       JOBSCOUT_TABLE      = aws_dynamodb_table.seen.name
@@ -172,7 +175,7 @@ resource "aws_scheduler_schedule" "scan" {
   }
 }
 
-# ---------- Cost guardrail (whole account, so Bedrock usage is included) ----------
+# ---------- Cost guardrails (whole account, so Bedrock usage is included) ----------
 
 resource "aws_budgets_budget" "monthly" {
   name         = "${local.name}-monthly"
@@ -187,5 +190,112 @@ resource "aws_budgets_budget" "monthly" {
     threshold_type             = "PERCENTAGE"
     notification_type          = "FORECASTED"
     subscriber_email_addresses = [var.alert_email]
+  }
+
+  notification {
+    comparison_operator        = "GREATER_THAN"
+    threshold                  = 100
+    threshold_type             = "PERCENTAGE"
+    notification_type          = "ACTUAL"
+    subscriber_email_addresses = [var.alert_email]
+  }
+}
+
+# Hard stop: when actual spend passes the budget, AWS Budgets attaches this deny
+# policy to the Lambda role, so JobScout can no longer call Claude. Budgets does
+# not undo it next month; detach the policy (or reverse the action) to resume.
+resource "aws_iam_policy" "deny_bedrock" {
+  name        = "${local.name}-deny-bedrock"
+  description = "Attached by the budget action when JobScout's monthly budget is exceeded."
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Deny"
+      Action   = ["bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream", "bedrock-mantle:CreateInference"]
+      Resource = "*"
+    }]
+  })
+}
+
+data "aws_iam_policy_document" "budgets_assume" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["budgets.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "budget_action" {
+  name               = "${local.name}-budget-action"
+  assume_role_policy = data.aws_iam_policy_document.budgets_assume.json
+}
+
+resource "aws_iam_role_policy" "budget_action" {
+  role = aws_iam_role.budget_action.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = ["iam:AttachRolePolicy", "iam:DetachRolePolicy"]
+      Resource = aws_iam_role.lambda.arn
+      Condition = {
+        ArnEquals = { "iam:PolicyARN" = aws_iam_policy.deny_bedrock.arn }
+      }
+    }]
+  })
+}
+
+resource "aws_budgets_budget_action" "stop_bedrock" {
+  budget_name        = aws_budgets_budget.monthly.name
+  action_type        = "APPLY_IAM_POLICY"
+  approval_model     = "AUTOMATIC"
+  notification_type  = "ACTUAL"
+  execution_role_arn = aws_iam_role.budget_action.arn
+
+  action_threshold {
+    action_threshold_type  = "PERCENTAGE"
+    action_threshold_value = 100
+  }
+
+  definition {
+    iam_action_definition {
+      policy_arn = aws_iam_policy.deny_bedrock.arn
+      roles      = [aws_iam_role.lambda.name]
+    }
+  }
+
+  subscriber {
+    address           = var.alert_email
+    subscription_type = "EMAIL"
+  }
+
+  depends_on = [aws_iam_role_policy.budget_action]
+}
+
+# Emails a daily summary when any service spends noticeably more than usual.
+resource "aws_ce_anomaly_monitor" "services" {
+  name              = "${local.name}-service-spend"
+  monitor_type      = "DIMENSIONAL"
+  monitor_dimension = "SERVICE"
+}
+
+resource "aws_ce_anomaly_subscription" "email" {
+  name             = "${local.name}-anomalies"
+  frequency        = "DAILY"
+  monitor_arn_list = [aws_ce_anomaly_monitor.services.arn]
+
+  subscriber {
+    type    = "EMAIL"
+    address = var.alert_email
+  }
+
+  threshold_expression {
+    dimension {
+      key           = "ANOMALY_TOTAL_IMPACT_ABSOLUTE"
+      match_options = ["GREATER_THAN_OR_EQUAL"]
+      values        = [tostring(var.anomaly_alert_usd)]
+    }
   }
 }
