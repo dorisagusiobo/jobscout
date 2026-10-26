@@ -13,7 +13,9 @@ Rules:
 - Weigh hard requirements (years, must-have stack, degree) above nice-to-haves.
 - The candidate is authorized to work in the US without sponsorship but is NOT a US citizen
   and cannot hold a security clearance. Put any citizenship, clearance, relocation or
-  on-site requirement in eligibility_concerns and cap the score at 40 if it is mandatory.
+  on-site requirement outside the Baltimore/DC area in eligibility_concerns and cap the score
+  at 40 if it is mandatory. eligibility_concerns lists real blockers only: leave it empty when
+  there are none, and never add notes like "no sponsorship concern".
 - The pitch must be one truthful sentence grounded in the profile.
 
 <candidate_profile>
@@ -62,6 +64,9 @@ class ClaudeScorer:
 
     def score(self, job: Job) -> FitAssessment:
         extra = {"output_config": {"effort": self.effort}} if self.effort else {}
+        if bedrock_api(self.model) == "invoke":
+            # InvokeModel rejects the SDK's newest API version; pin Bedrock's own.
+            extra["extra_body"] = {"anthropic_version": "bedrock-2023-05-31"}
         response = self.client.messages.parse(
             model=self.model,
             max_tokens=4000,

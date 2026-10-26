@@ -68,6 +68,8 @@ class Planner:
                 report.errors += 1
                 continue
             report.scored += 1
+            log.info("%d %s | %s — %s | concerns: %s", assessment.fit_score, assessment.verdict,
+                     job.title, job.company, assessment.eligibility_concerns or "none")
             self.memory.remember(job_id, assessment.fit_score, assessment.verdict)
             if assessment.fit_score >= self.settings.min_score and not assessment.eligibility_concerns:
                 report.leads.append(Lead(job=job, assessment=assessment))

@@ -71,9 +71,12 @@ def test_title_matches(title, ok):
 
 
 @pytest.mark.parametrize("loc,ok", [
-    ("Remote - US", True), ("San Francisco, CA", True), ("Baltimore, MD", True), ("", True),
+    ("Remote - US", True), ("Baltimore, MD", True), ("Washington, D.C.", True), ("", True),
+    ("San Francisco (Remote)", True), ("United States", True), ("West Coast - United States", True),
+    ("Arlington, VA", True), ("Hybrid - Bethesda", True),
+    ("San Francisco, CA", False), ("Seattle, Washington", False), ("New York, NY; London, UK", False),
+    ("San Francisco, California, United States", False),
     ("London, UK", False), ("Remote - Canada", False), ("Bengaluru, India", False),
-    ("New York, NY; London, UK", True),
 ])
 def test_location_ok(loc, ok):
     assert location_ok(loc) is ok
@@ -124,6 +127,7 @@ def test_effort_is_optional():
         parse=lambda **kw: calls.update(kw) or SimpleNamespace(parsed_output=assessment(), stop_reason="end_turn")))
     ClaudeScorer("p", "us.anthropic.claude-haiku-4-5-20251001-v1:0", "us-east-1", effort="", client=fake).score(job())
     assert "output_config" not in calls
+    assert calls["extra_body"] == {"anthropic_version": "bedrock-2023-05-31"}  # InvokeModel path
 
 
 @pytest.mark.parametrize("model,api", [

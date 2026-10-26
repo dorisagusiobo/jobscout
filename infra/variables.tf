@@ -16,7 +16,7 @@ variable "schedule" {
 
 variable "model" {
   type    = string
-  default = "anthropic.claude-opus-5-5"
+  default = "global.anthropic.claude-sonnet-4-6" # switch to anthropic.claude-opus-5-5 once access opens
 }
 
 variable "effort" {

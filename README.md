@@ -71,7 +71,7 @@ aws lambda invoke --function-name jobscout /dev/stdout
 |---|---|---|
 | Boards and title keywords | `config/companies.json` | 43 AI-heavy companies |
 | Candidate profile | `profile/candidate_profile.md` | — |
-| Model | `JOBSCOUT_MODEL` / `var.model` | `anthropic.claude-opus-5-5` (`anthropic.claude-haiku-5-5` is cheaper) |
+| Model | `JOBSCOUT_MODEL` / `var.model` | `global.anthropic.claude-sonnet-4-6` (use `anthropic.claude-opus-5-5` once your account has access) |
 | Effort | `JOBSCOUT_EFFORT` | `low` (set empty for models without effort, e.g. Haiku 4.5) |
 | Alert threshold | `JOBSCOUT_MIN_SCORE` | 75 |
 | Model calls per run | `JOBSCOUT_MAX_SCORES` | 25 |

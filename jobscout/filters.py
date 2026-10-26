@@ -49,15 +49,36 @@ def title_matches(title: str, include: list[str], exclude: list[str]) -> bool:
     return any(k in t for k in include) and not any(k in t for k in exclude)
 
 
+# Commutable from the candidate's home in Maryland (Baltimore / DC area).
+LOCAL = re.compile(
+    r"\b(baltimore|maryland|washington,?\s*d\.?c\.?|dc metro|virginia|arlington|bethesda|rockville|"
+    r"columbia,\s*md|annapolis|reston|mclean|tysons|herndon)\b|,\s*(md|dc|va)\b",
+    re.I,
+)
+# A location that is only "United States", optionally with a region, means anywhere in the US.
+US_WIDE_ONLY = re.compile(
+    r"^(?:\W|united states|usa|u\.s\.a?\.?|us|remote|central|east|west|coast|north|south|"
+    r"northeast|southeast|northwest|southwest|midwest)*$",
+    re.I,
+)
+
+
 def location_ok(location: str) -> bool:
-    """Remote-in-US or a US location. Unknown or empty locations pass to the scorer."""
+    """Remote in the US, US-wide, or commutable from the Baltimore/DC area.
+
+    On-site or hybrid roles in other cities are dropped before scoring.
+    Unknown or empty locations pass to the scorer.
+    """
     loc = location.strip()
     if not loc:
         return True
     us = bool(US_HINTS.search(loc) or STATE_CODE.search(loc))
     if NON_US.search(loc) and not us:
         return False
-    return us or "remote" in loc.lower() or "anywhere" in loc.lower()
+    low = loc.lower()
+    if "remote" in low or "anywhere" in low or "distributed" in low:
+        return True
+    return bool(US_WIDE_ONLY.match(loc) or LOCAL.search(loc))
 
 
 def eligibility_problem(description: str) -> str | None:

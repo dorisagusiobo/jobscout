@@ -12,7 +12,7 @@ class Settings:
 
     companies_file: Path = ROOT / "config" / "companies.json"
     profile_file: Path = ROOT / "profile" / "candidate_profile.md"
-    model: str = "anthropic.claude-opus-5-5"
+    model: str = "global.anthropic.claude-sonnet-4-6"
     effort: str = "low"
     aws_region: str = "us-east-1"
     min_score: int = 75
