@@ -34,6 +34,24 @@ EventBridge Scheduler ──► Lambda (Python 3.12)
 - **Testable seams.** The scorer, memory, notifier and fetcher are injected, so the whole
   loop runs in tests with fakes and makes no network or AWS calls.
 
+## Claude Code guardrails
+
+I build JobScout with Claude Code, so the repo carries the rules the coding agent has to follow.
+
+- **Skill: [`safe-change`](.claude/skills/safe-change/SKILL.md).** Before and after any change,
+  the agent runs the tests and, for edits in `infra/`, reads the full `terraform plan`. It
+  stops and asks me before a plan would destroy or replace a resource, before any change to
+  IAM, the AWS Budgets action or alerts, before touching the 15-scores-per-run cap or the $10
+  monthly budget, and before any `terraform apply`. It may not delete or weaken tests to get a
+  pass.
+- **Hook: [`run-tests.sh`](.claude/hooks/run-tests.sh).** A `PostToolUse` hook in
+  [`.claude/settings.json`](.claude/settings.json) runs the test suite after every edit to a
+  Python file. If the tests fail it exits with code 2, so Claude Code sends the failure back to
+  the agent. The skill is guidance; the hook is enforced.
+
+Both were tested live: the agent stopped when asked to raise the per-run cap, and the hook
+caught a deliberately failing test.
+
 ## Run locally
 
 ```bash
